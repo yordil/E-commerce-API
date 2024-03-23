@@ -15,19 +15,23 @@ app.get("/", (req, res) => {
 });
 
 app.post("/payments/create", async (req, res) => {
-	const total = req.query.total;
-
-	if (total > 0) {
-		const paymentIntent = await stripe.paymentIntents.create({
-			amount: total,
-			currency: "usd",
-		});
-
-		res.status(201).json({
-			clientSecret: paymentIntent.client_secret,
-		});
-	} else {
-		res.status(400).send({ message: "Invalid total amount" });
+	
+	try {
+		const total = req.query.total;
+		if (total > 0) {
+			const paymentIntent = await stripe.paymentIntents.create({
+				amount: parseInt(total),
+				currency: "usd",
+			});
+	
+			res.status(201).json({
+				clientSecret: paymentIntent.client_secret,
+			});
+		} else {
+			res.status(403).json({ message: "Invalid total amount" });
+		}
+	}catch(error){
+		res.status(500).send({ message: "SErver error " });
 	}
 });
 
